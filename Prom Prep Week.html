@@ -1,0 +1,455 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Prom Prep Week</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Karla:wght@400;500;700&display=swap">
+<style>
+/* Layout: one header with targets and a progress bar, a grid of day cards, then notes, saved weeks and a backup box. */
+:root {
+  --bg: #EEF1EF;
+  --surface: #FFFFFF;
+  --fg: #17211D;
+  --muted: #5A6862;
+  --line: #D3DBD7;
+  --accent: #0B7A63;
+  --accent-ink: #FFFFFF;
+  --accent-soft: #DDF0EA;
+  --warn: #9A5200;
+  --warn-soft: #FBEBD6;
+  --font-display: 'Barlow Condensed', 'Arial Narrow', Arial, sans-serif;
+  --font-body: 'Karla', 'Helvetica Neue', Arial, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0F1513; --surface: #18211D; --fg: #E7EFEA; --muted: #9DAEA5; --line: #2B3832;
+    --accent: #3FD0A8; --accent-ink: #07251D; --accent-soft: #16352C; --warn: #F0A24A; --warn-soft: #3A2A12;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0F1513; --surface: #18211D; --fg: #E7EFEA; --muted: #9DAEA5; --line: #2B3832;
+  --accent: #3FD0A8; --accent-ink: #07251D; --accent-soft: #16352C; --warn: #F0A24A; --warn-soft: #3A2A12;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: var(--bg); color: var(--fg);
+  font-family: var(--font-body); font-size: 16px; line-height: 1.5;
+  padding-block: 24px 48px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+.wrap { max-width: 1080px; margin: 0 auto; display: flex; flex-direction: column; gap: 24px; }
+header { display: flex; flex-direction: column; gap: 10px; }
+.eyebrow { font-size: 13px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); font-weight: 700; }
+h1 { font-family: var(--font-display); font-weight: 700; font-size: clamp(40px, 8vw, 64px); line-height: 1; margin: 0; text-wrap: balance; letter-spacing: .01em; }
+.lede { margin: 0; max-width: 62ch; color: var(--muted); }
+.targets { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; }
+.target { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px; min-width: 0; }
+.target b { display: block; font-family: var(--font-display); font-size: 26px; line-height: 1.1; font-weight: 700; font-variant-numeric: tabular-nums; }
+.target span { font-size: 13px; color: var(--muted); }
+.progress { display: flex; flex-direction: column; gap: 8px; }
+.progress-row { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+.progress-row strong { font-variant-numeric: tabular-nums; }
+.btns { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.bar { height: 10px; border-radius: 99px; background: var(--line); overflow: hidden; }
+.bar > i { display: block; height: 100%; width: 0; background: var(--accent); transition: width .25s ease; }
+button {
+  font: inherit; font-size: 14px; color: var(--fg); background: transparent;
+  border: 1px solid var(--line); border-radius: 6px; padding: 7px 14px; cursor: pointer;
+}
+button:hover { border-color: var(--accent); }
+button.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); font-weight: 700; }
+button.primary:hover { filter: brightness(1.06); }
+button:focus-visible, input:focus-visible, summary:focus-visible, textarea:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+.status { font-size: 14px; color: var(--accent); min-height: 1.4em; }
+.days { display: grid; grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); gap: 16px; align-items: start; }
+.day { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 16px; display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+.day.today { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-soft); }
+.day-head { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+.day h2 { font-family: var(--font-display); font-weight: 700; font-size: 28px; margin: 0; line-height: 1.1; }
+.count { font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.tag { align-self: flex-start; font-size: 12px; letter-spacing: .06em; text-transform: uppercase; font-weight: 700; padding: 3px 8px; border-radius: 4px; background: var(--accent-soft); color: var(--accent); }
+.tag.rest { background: var(--warn-soft); color: var(--warn); }
+.group-label { font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); font-weight: 700; margin: 0; }
+ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 2px; }
+li label { display: flex; gap: 10px; align-items: flex-start; padding: 6px 4px; border-radius: 6px; cursor: pointer; min-width: 0; }
+li label:hover { background: var(--accent-soft); }
+li input { width: 20px; height: 20px; margin: 2px 0 0; accent-color: var(--accent); flex: none; cursor: pointer; }
+li span { min-width: 0; overflow-wrap: anywhere; }
+li input:checked + span { color: var(--muted); text-decoration: line-through; text-decoration-color: var(--line); }
+li small { display: block; color: var(--muted); font-size: 13px; line-height: 1.4; }
+hr { border: 0; border-top: 1px solid var(--line); margin: 0; width: 100%; }
+.notes { display: grid; grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); gap: 16px; align-items: start; }
+.note, .panel { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 16px; min-width: 0; }
+.note h3, .panel-h { font-family: var(--font-display); font-size: 24px; margin: 0 0 8px; font-weight: 700; line-height: 1.15; }
+.note p, .note li { margin: 0; font-size: 15px; }
+.note ul { gap: 6px; list-style: disc; padding-left: 20px; }
+details > summary { cursor: pointer; font-weight: 700; }
+.fields { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; }
+.field { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.field label { font-size: 13px; letter-spacing: .06em; text-transform: uppercase; font-weight: 700; color: var(--muted); }
+textarea {
+  width: 100%; min-height: 130px; resize: vertical; font: inherit; font-size: 15px; line-height: 1.45;
+  color: var(--fg); background: var(--bg); border: 1px solid var(--line); border-radius: 6px; padding: 10px;
+}
+.save-row { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-top: 14px; }
+.muted { color: var(--muted); font-size: 15px; margin: 0; }
+.hist { display: flex; flex-direction: column; gap: 8px; margin-top: 8px; }
+.hist details { border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; }
+.hist .body { display: flex; flex-direction: column; gap: 10px; margin-top: 10px; font-size: 15px; }
+.hist h4 { margin: 0; font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.hist p { margin: 0; overflow-wrap: anywhere; }
+.hist .pre { white-space: pre-wrap; }
+.hist .miss { color: var(--warn); }
+.backup-body { display: flex; flex-direction: column; gap: 10px; margin-top: 10px; }
+@media (prefers-reduced-motion: reduce) { .bar > i { transition: none; } }
+</style>
+
+<div class="wrap">
+  <header>
+    <div class="eyebrow">From 8 Nov · prom in late June · about 33 weeks</div>
+    <h1>Prom Prep Week</h1>
+    <p class="lede">Your week in one list. Tick things off as you go. Each Monday the list resets and the week before is saved for you automatically. Press Save this week at any point to keep a copy.</p>
+  </header>
+
+  <section class="targets" aria-label="Daily targets">
+    <div class="target"><b>2,400–2,500</b><span>kcal a day</span></div>
+    <div class="target"><b>160–180 g</b><span>protein a day</span></div>
+    <div class="target"><b>8–10k</b><span>steps a day</span></div>
+    <div class="target"><b>0.25–1 kg</b><span>lost per week is on track</span></div>
+  </section>
+
+  <section class="progress" aria-label="Weekly progress">
+    <div class="progress-row">
+      <span><strong id="done">0</strong> of <strong id="total">0</strong> done this week</span>
+      <div class="btns">
+        <button class="primary js-save" type="button">Save this week</button>
+        <button id="clear" type="button">Clear this week's ticks</button>
+      </div>
+    </div>
+    <div class="bar" role="progressbar" aria-label="Tasks done this week" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="bar"><i id="fill"></i></div>
+    <span class="status js-status" role="status"></span>
+  </section>
+
+  <section class="days" id="days"></section>
+
+  <section class="notes">
+    <div class="note">
+      <h3>Sunday weigh-in rule</h3>
+      <p>Same morning, after the toilet, before food. If you have lost less than 0.25 kg a week for 3 weeks running, trim about 100–150 kcal a day. If you are losing more than 1 kg a week, add food back. Also note your waist and your lift weights, because muscle gain can hide fat loss on the scale.</p>
+    </div>
+    <div class="note">
+      <h3>Dinner plate</h3>
+      <ul>
+        <li>Half the plate veg or salad</li>
+        <li>Palm and a half of protein</li>
+        <li>One fist of carbs (rice, pasta, potato)</li>
+        <li>Take your share once, no seconds. Extra veg if still hungry.</li>
+      </ul>
+    </div>
+    <div class="note">
+      <details>
+        <summary>Cheap shop for breakfasts and lunches</summary>
+        <ul style="margin-top:8px">
+          <li>Eggs (tray of 15–30), porridge oats, milk</li>
+          <li>Own-brand Greek-style yoghurt, bananas, apples</li>
+          <li>Wholemeal bread and wraps, rice, pasta</li>
+          <li>Tinned tuna, beans and lentils</li>
+          <li>Chicken thighs, frozen veg and peas</li>
+          <li>Onions and carrots; cheap whey protein if budget allows</li>
+          <li>Check yellow stickers and own-brand ranges first</li>
+        </ul>
+      </details>
+    </div>
+  </section>
+
+  <section class="panel" aria-labelledby="notes-h">
+    <h2 class="panel-h" id="notes-h">Notes</h2>
+    <div class="fields">
+      <div class="field">
+        <label for="gym-notes">Gym progress</label>
+        <textarea id="gym-notes" placeholder="Weights and reps for each lift, how it felt, what to increase next time"></textarea>
+      </div>
+      <div class="field">
+        <label for="other-notes">Other notes</label>
+        <textarea id="other-notes" placeholder="Weigh-in and waist, how the week went, what to change next week"></textarea>
+      </div>
+    </div>
+    <div class="save-row">
+      <button class="primary js-save" type="button">Save this week</button>
+      <span class="status js-status" role="status"></span>
+    </div>
+  </section>
+
+  <section class="panel" aria-labelledby="hist-h">
+    <h2 class="panel-h" id="hist-h">Saved weeks</h2>
+    <p class="muted" id="hist-empty">Nothing saved yet. Press Save this week to keep what you did and missed, along with your notes.</p>
+    <div class="hist" id="history"></div>
+  </section>
+
+  <section class="panel">
+    <details>
+      <summary>Move your data to another device</summary>
+      <div class="backup-body">
+        <p class="muted">Your ticks, notes and saved weeks stay in this browser on this device. To use them somewhere else, press Show my data, copy the text, then paste it into the same box on the other device and press Load pasted data.</p>
+        <textarea id="backup" aria-label="Backup data" placeholder="Your data appears here, or paste data from another device"></textarea>
+        <div class="btns">
+          <button type="button" id="export">Show my data</button>
+          <button type="button" id="import">Load pasted data</button>
+        </div>
+        <span class="status" id="backup-status" role="status"></span>
+      </div>
+    </details>
+  </section>
+</div>
+
+<script>
+(function () {
+  var KEY = 'prom-prep-week-v2';
+  var HKEY = 'prom-prep-history-v2';
+
+  var DAILY = [
+    'Breakfast and packed lunch, each with protein',
+    'Dinner plate: half veg or salad',
+    'Protein 160 g or more',
+    '8,000+ steps (walk to or from school, 20–30 min after dinner)',
+    'Water or zero-sugar drinks only',
+    'Read 5 pages of your book',
+    'Lights out by midnight'
+  ];
+  var WEEK_TASKS = [
+    ['Gym 1: Arms (weekday)', 'Barbell or EZ-bar curl 3 × 8–12, close-grip bench press 3 × 8–10, hammer curl 3 × 10–12, overhead dumbbell triceps extension 3 × 10–12, bench dips 3 × 8–12'],
+    ['Gym 2: Upper body (weekday)', 'Dumbbell bench press 3 × 8–12, one-arm dumbbell row 3 × 8–12 each side, dumbbell shoulder press 3 × 8–12, incline dumbbell press 3 × 8–12, barbell bent-over row 3 × 8–12, push-ups to finish'],
+    ['Gym 3: Other, legs and core (weekend)', 'Goblet squat 3 × 8–12, Romanian deadlift 3 × 8–10, walking lunges 3 × 10 each leg, barbell hip thrust 3 × 8–12, farmer’s carry 3 × 30–40 m, plank 3 × 30–45 sec'],
+    ['Read one legal essay', 'Pick the day that suits your study schedule']
+  ];
+  var DAYS = [
+    { name: 'Monday', short: 'Mon', tag: 'Walk day', tasks: [['Evening walk, 30 min']] },
+    { name: 'Tuesday', short: 'Tue', tag: 'Walk day', tasks: [['Evening walk, 30 min']] },
+    { name: 'Wednesday', short: 'Wed', tag: 'Walk and prep', tasks: [['Evening walk, 30 min'], ['Top up packed lunches for Thu and Fri']] },
+    { name: 'Thursday', short: 'Thu', tag: 'Walk day', tasks: [['Evening walk, 30 min']] },
+    { name: 'Friday', short: 'Fri', tag: 'Walk day', tasks: [['Evening walk, 30 min']] },
+    { name: 'Saturday', short: 'Sat', tag: 'Weekend', rest: true, tasks: [
+      ['Long walk or any easy activity'],
+      ['Plan one treat meal and keep the rest on track'],
+      ['Write next week’s shopping list']
+    ]},
+    { name: 'Sunday', short: 'Sun', tag: 'Weigh-in and prep', rest: true, tasks: [
+      ['Weigh in and measure waist', 'Same morning, before food'],
+      ['Shop the cheap list', 'Own-brand, frozen, yellow stickers'],
+      ['Batch cook: chilli or curry, rice, chicken', 'Freeze portions'],
+      ['Pack lunches for Mon to Wed'],
+      ['Boil 6 eggs for snacks']
+    ]}
+  ];
+  var SECTIONS = [{ name: 'This week', short: 'Wk', tag: 'Any day', tasks: WEEK_TASKS, noDaily: true }].concat(DAYS);
+
+  function pad(n) { return (n < 10 ? '0' : '') + n; }
+  function weekStart() {
+    var d = new Date(); d.setHours(0, 0, 0, 0);
+    d.setDate(d.getDate() - ((d.getDay() + 6) % 7));
+    return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate());
+  }
+  function label(t) { return Array.isArray(t) ? t[0] : t; }
+  function tid(sec, i) { return sec.short + '-t' + i; }
+  function did(sec, i) { return sec.short + '-d' + i; }
+  function fresh(wk) { return { week: wk, done: {}, gym: '', notes: '' }; }
+
+  function loadHistory() {
+    try { var h = JSON.parse(localStorage.getItem(HKEY)); if (Array.isArray(h)) return h; } catch (e) {}
+    return [];
+  }
+  function saveHistory(h) { try { localStorage.setItem(HKEY, JSON.stringify(h)); } catch (e) {} }
+  function upsert(h, rec) {
+    for (var i = 0; i < h.length; i++) {
+      if (h[i].week === rec.week) { if ((rec.savedAt || 0) >= (h[i].savedAt || 0)) h[i] = rec; return h; }
+    }
+    h.push(rec);
+    h.sort(function (a, b) { return a.week < b.week ? 1 : -1; });
+    return h;
+  }
+  function snapshot(st) {
+    var total = 0, done = 0, days = [];
+    SECTIONS.forEach(function (sec) {
+      var d = [], m = [];
+      sec.tasks.forEach(function (t, i) { (st.done[tid(sec, i)] ? d : m).push(label(t)); });
+      if (!sec.noDaily) DAILY.forEach(function (t, i) { (st.done[did(sec, i)] ? d : m).push(t); });
+      total += d.length + m.length; done += d.length;
+      days.push({ name: sec.name, done: d, missed: m });
+    });
+    return { week: st.week, savedAt: Date.now(), done: done, total: total, gym: st.gym || '', notes: st.notes || '', days: days };
+  }
+  function hasContent(s) { return Object.keys(s.done || {}).length > 0 || !!s.gym || !!s.notes; }
+
+  var wk = weekStart();
+  var state = fresh(wk);
+  try {
+    var s = JSON.parse(localStorage.getItem(KEY));
+    if (s && s.done) {
+      if (s.week === wk) { state = { week: wk, done: s.done, gym: s.gym || '', notes: s.notes || '' }; }
+      else if (hasContent(s)) { saveHistory(upsert(loadHistory(), snapshot(s))); }
+    }
+  } catch (e) {}
+  function save() { try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {} }
+
+  var root = document.getElementById('days');
+  var gymEl = document.getElementById('gym-notes');
+  var otherEl = document.getElementById('other-notes');
+  var todayIdx = (new Date().getDay() + 6) % 7;
+
+  function el(tag, cls, text) {
+    var n = document.createElement(tag);
+    if (cls) n.className = cls;
+    if (text != null) n.textContent = text;
+    return n;
+  }
+
+  function addList(parent, items, idFn, sec) {
+    var ul = el('ul');
+    items.forEach(function (it, i) {
+      var id = idFn(sec, i);
+      var li = el('li'), lab = el('label');
+      var cb = document.createElement('input');
+      cb.type = 'checkbox'; cb.id = 'cb-' + id; cb.dataset.id = id; cb.checked = !!state.done[id];
+      var span = el('span', null, label(it));
+      if (Array.isArray(it) && it[1]) span.appendChild(el('small', null, it[1]));
+      lab.appendChild(cb); lab.appendChild(span); li.appendChild(lab); ul.appendChild(li);
+    });
+    parent.appendChild(ul);
+  }
+
+  function formatWeek(w) {
+    var d = new Date(w + 'T00:00:00');
+    if (isNaN(d.getTime())) return w;
+    return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+  }
+
+  function renderHistory() {
+    var h = loadHistory();
+    var box = document.getElementById('history');
+    box.innerHTML = '';
+    document.getElementById('hist-empty').hidden = h.length > 0;
+    h.forEach(function (rec) {
+      var det = el('details');
+      var pct = rec.total ? Math.round(rec.done / rec.total * 100) : 0;
+      det.appendChild(el('summary', null, 'Week of ' + formatWeek(rec.week) + ' · ' + rec.done + ' of ' + rec.total + ' done (' + pct + '%)'));
+      var body = el('div', 'body');
+      if (rec.gym) { body.appendChild(el('h4', null, 'Gym progress')); body.appendChild(el('p', 'pre', rec.gym)); }
+      if (rec.notes) { body.appendChild(el('h4', null, 'Other notes')); body.appendChild(el('p', 'pre', rec.notes)); }
+      (rec.days || []).forEach(function (d) {
+        var g = el('div');
+        g.appendChild(el('h4', null, d.name));
+        g.appendChild(el('p', null, 'Done: ' + (d.done && d.done.length ? d.done.join(', ') : 'nothing')));
+        if (d.missed && d.missed.length) g.appendChild(el('p', 'miss', 'Missed: ' + d.missed.join(', ')));
+        body.appendChild(g);
+      });
+      det.appendChild(body);
+      box.appendChild(det);
+    });
+  }
+
+  function refresh() {
+    var all = root.querySelectorAll('input[type=checkbox]');
+    var done = 0;
+    all.forEach(function (cb) { if (cb.checked) done++; });
+    document.getElementById('done').textContent = done;
+    document.getElementById('total').textContent = all.length;
+    var pct = all.length ? Math.round(done / all.length * 100) : 0;
+    document.getElementById('fill').style.width = pct + '%';
+    document.getElementById('bar').setAttribute('aria-valuenow', pct);
+    root.querySelectorAll('.day').forEach(function (d) {
+      var boxes = d.querySelectorAll('input[type=checkbox]'), n = 0;
+      boxes.forEach(function (cb) { if (cb.checked) n++; });
+      d.querySelector('.count').textContent = n + '/' + boxes.length;
+    });
+  }
+
+  function render() {
+    root.innerHTML = '';
+    SECTIONS.forEach(function (sec, idx) {
+      var card = el('article', 'day' + (idx - 1 === todayIdx ? ' today' : ''));
+      var head = el('div', 'day-head');
+      head.appendChild(el('h2', null, sec.name));
+      head.appendChild(el('span', 'count'));
+      card.appendChild(head);
+      card.appendChild(el('span', 'tag' + (sec.rest ? ' rest' : ''), sec.tag));
+      addList(card, sec.tasks, tid, sec);
+      if (!sec.noDaily) {
+        card.appendChild(el('hr'));
+        card.appendChild(el('p', 'group-label', 'Daily basics'));
+        addList(card, DAILY, did, sec);
+      }
+      root.appendChild(card);
+    });
+    gymEl.value = state.gym;
+    otherEl.value = state.notes;
+    refresh();
+    renderHistory();
+  }
+
+  function setStatus(msg) {
+    document.querySelectorAll('.js-status').forEach(function (n) { n.textContent = msg; });
+  }
+
+  root.addEventListener('change', function (e) {
+    var cb = e.target;
+    if (!cb.dataset || !cb.dataset.id) return;
+    if (cb.checked) state.done[cb.dataset.id] = 1; else delete state.done[cb.dataset.id];
+    save(); refresh();
+  });
+  gymEl.addEventListener('input', function () { state.gym = gymEl.value; save(); });
+  otherEl.addEventListener('input', function () { state.notes = otherEl.value; save(); });
+
+  document.getElementById('clear').addEventListener('click', function () {
+    state.done = {};
+    save(); render(); setStatus('');
+  });
+  document.querySelectorAll('.js-save').forEach(function (b) {
+    b.addEventListener('click', function () {
+      saveHistory(upsert(loadHistory(), snapshot(state)));
+      renderHistory();
+      var t = new Date();
+      setStatus('Saved at ' + pad(t.getHours()) + ':' + pad(t.getMinutes()) + '. See Saved weeks below.');
+    });
+  });
+
+  var backup = document.getElementById('backup');
+  var bstatus = document.getElementById('backup-status');
+  document.getElementById('export').addEventListener('click', function () {
+    backup.value = JSON.stringify({ v: 2, state: state, history: loadHistory() });
+    backup.focus(); backup.select();
+    bstatus.textContent = 'Select all and copy this text.';
+    try {
+      navigator.clipboard.writeText(backup.value).then(function () { bstatus.textContent = 'Copied to your clipboard.'; }, function () {});
+    } catch (e) {}
+  });
+  document.getElementById('import').addEventListener('click', function () {
+    var data;
+    try { data = JSON.parse(backup.value); } catch (e) { data = null; }
+    if (!data || !data.state || !Array.isArray(data.history)) {
+      bstatus.textContent = 'That text is not valid data. Copy it again from the other device.';
+      return;
+    }
+    var h = loadHistory();
+    data.history.forEach(function (rec) { if (rec && rec.week && rec.days) h = upsert(h, rec); });
+    var st = data.state;
+    if (st.week === wk && st.done) {
+      state = { week: wk, done: st.done, gym: st.gym || '', notes: st.notes || '' };
+    } else if (st.week && st.done && hasContent(st)) {
+      h = upsert(h, snapshot(st));
+    }
+    saveHistory(h); save(); render();
+    bstatus.textContent = 'Data loaded.';
+  });
+
+  render();
+})();
+</script>
+</html>
+
+</body></html>
